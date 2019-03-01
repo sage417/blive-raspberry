@@ -1,30 +1,47 @@
 from downloader.NeteaseMusic import *
 
+import asyncio
 from service.Service import Service
-from util.Danmu import Danmu
+from util.Danmu2 import BiliLive
 from util.Log import Log
-
+from util.Config import Config
 from util.Queue import DownloadQueue
 import time
 
 class DanmuService(Service):
     
     def __init__(self):
-        self.danmu = Danmu()
+        # self.danmu = BiliLive()
+        self.config = Config()
         self.musicDownloader = NeteaseMusic()
         self.log = Log('Danmu Service')
         self.commandMap = {
             '点歌': 'selectSongAction',
             'id': 'selectSongByIdAction'
         }
+        self.loop = asyncio.new_event_loop()
         pass
 
     def run(self):
-        try:
-            self.parseDanmu()
-            time.sleep(1.5)
-        except Exception as e:
+        print('start running')
+        cmd_func = {  
+        'DANMU_MSG': lambda x : x,  # 接收到弹幕执行的函数  
+        'SEND_GIFT': lambda x : x  # 接收到礼物执行的函数  
+        }  
+        roomId = self.config.get('roomId')
+        #loop = asyncio.new_event_loop()
+        #loop.set_debug(True)
+        live = BiliLive(roomId, cmd_func_dict=cmd_func, loop=self.loop)  
+        asyncio.ensure_future(live.connect(), loop=self.loop)
+        try:  
+            self.loop.run_forever()
+        except Exception as e:  
             self.log.error(e)
+
+    def stop(self):
+        self.threadRun = False
+        if self.loop.is_running():
+            self.loop.stop()
 
     # 解析弹幕
     def parseDanmu(self):
