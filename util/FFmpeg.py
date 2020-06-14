@@ -16,23 +16,25 @@ class ffmpeg(object):
             .bitrate(type='a', rate='192k')
             .codec(type='v', codec='h264_omx')
             .format('flv')
+            .shortest()
             .output(output)
         )
 
         # 处理图片
         if image != '':
             # 获取音乐时长
-            audio = MP3(music)
-            audioTimeLength = str(int(audio.info.length))
+            # audio = MP3(music)
+            # audioTimeLength = str(int(audio.info.length))
 
-            builder = builder.input(filename=image, fps=3, time=audioTimeLength, format="image2")
+            builder = builder.input(filename=image, fps=3, time=0, format="image2")
 
         # 处理音乐
         builder = builder.input(filename=music)
         
         # 处理字幕
         if ass != '':
-            builder = builder.ass(ass)
+            pass
+            # builder = builder.ass(ass)
 
         return builder.build()
 

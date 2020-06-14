@@ -93,6 +93,10 @@ class FFmpegCommand(object):
     def format(self, fmt):
         self.config['outputCommand'].append('-f %s' % fmt)
         return self
+
+    def shortest(self):
+        self.config['outputCommand'].append('-shortest')
+        return self
     
     # 由CommandArray转换为command
     def buildCommand(self, array):
